@@ -4,9 +4,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var config = require('./config/database');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+
+var api = require('./routes/api');
+
 
 var app = express();
 
@@ -21,8 +28,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
 
 app.use('/', index);
+
+app.get('/', function(req, res) {
+  res.send('Page under construction.');
+});
+
+app.use('/api', api);
+
+
 app.use('/users', users);
 
 // catch 404 and forward to error handler
@@ -42,5 +58,20 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// mongoose connection
+mongoose.connect(config.database);
+
+
+// CORS-Enable
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+
+
+
 
 module.exports = app;
